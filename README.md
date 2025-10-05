@@ -260,6 +260,43 @@ if model_path:
 
 ---
 
+## Safety Analysis & Red-Teaming
+
+### Current Safety Evaluation
+
+**Implemented Safety Metrics:**
+- **Toxicity Detection**: Using Detoxify BERT model for automated toxicity scoring
+- **LLM-as-Judge**: GPT-4o-mini evaluation for helpfulness and harmlessness
+- **Trade-off Analysis**: Quantitative comparison of safety vs. capability metrics
+
+### Toxicity Measurement Implementation
+
+**Method**: Detoxify BERT (not Perspective API)
+
+```python
+# In evaluate_model.py - Toxicity detection implementation
+toxicity_model = Detoxify('original', device='cuda' if torch.cuda.is_available() else 'cpu')
+
+# For each response, calculate toxicity score
+toxicity_scores = toxicity_model.predict(response)
+toxicity_score = toxicity_scores['toxicity']
+```
+
+**Why Detoxify instead of Perspective API:**
+- **Self-contained**: No external API dependencies or rate limits
+- **BERT-based**: Uses pre-trained transformer model for consistent scoring
+- **Multi-class**: Detects toxicity, severe_toxicity, obscene, threat, insult, identity_attack
+- **Offline processing**: Works without internet connectivity
+
+### Safety vs. Capability Trade-offs
+
+**Analyzed Trade-offs:**
+- **QLoRA**: Achieved 44.3% toxicity reduction while improving helpfulness by 7.9%
+- **DPO**: 30.9% toxicity reduction but 10.8% helpfulness decrease
+- **Training Constraints**: Limited DPO effectiveness due to resource constraints
+
+---
+
 ## Model Artifacts
 
 ### Available Models
