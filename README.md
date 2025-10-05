@@ -217,6 +217,49 @@ python src/evaluation/compare_results.py \
 
 ---
 
+## Inference Optimization & Performance
+
+### Implemented Optimizations
+
+The evaluation pipeline includes several inference optimizations for efficient deployment:
+
+#### 1. 4-bit Quantization
+```python
+quant_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",           # 4-bit NormalFloat quantization
+    bnb_4bit_compute_dtype=torch.bfloat16 # Mixed precision for speed
+)
+
+model = AutoModelForCausalLM.from_pretrained(
+    base_model_name,
+    quantization_config=quant_config,     # 4-bit quantization enabled
+    device_map="auto",                   # Automatic device placement
+    torch_dtype=torch.bfloat16           # Memory efficient dtype
+)
+```
+
+#### 2. Adapter Merging for Faster Inference
+```python
+# Load adapter if provided
+if model_path:
+    model = PeftModel.from_pretrained(model, model_path)
+    print("Merging adapter for faster inference...")
+    model = model.merge_and_unload()  # Merging for speed optimization
+```
+
+#### 3. Memory & Speed Optimizations
+- **Device Mapping**: `device_map="auto"` for optimal GPU placement across available devices
+- **Mixed Precision**: `torch.bfloat16` for faster computation while maintaining model quality
+- **Efficient Generation**: Proper `pad_token_id` and `max_new_tokens` settings for optimal token generation
+
+#### Performance Benefits
+- **Memory Reduction**: ~75% memory savings with 4-bit quantization
+- **Inference Speed**: Faster response generation through adapter merging
+- **Scalability**: Better GPU utilization with automatic device mapping
+
+---
+
 ## Model Artifacts
 
 ### Available Models
@@ -244,6 +287,7 @@ python src/evaluation/compare_results.py \
 - **Current Setup**: Deploy QLoRA for maximum toxicity reduction with maintained performance given existing training constraints
 - **Extended Training**: Provide DPO equivalent training exposure (2-3 epochs, 10,000+ samples) for fair comparison
 - **Hybrid Approaches**: Consider QLoRA → DPO pipelines leveraging SFT initialization for DPO stability
+- **Constitutional AI Integration**: Incorporate Anthropic's Constitutional AI principles by adding explicit safety instructions and self-critique mechanisms to the model prompts
 - **Resource Planning**: Allocate additional GPU memory and training time for comprehensive DPO evaluation
 - **Future Research**: Investigate multi-turn conversation safety, ensemble methods, and scaled preference optimization
 
