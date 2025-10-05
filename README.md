@@ -1,6 +1,4 @@
-# Responsible AI Alignment Pipeline
-
-QLoRA + DPO fine-tuning on Llama-3-8B with Anthropic HH-RLHF dataset.
+# QLoRA + DPO fine-tuning on Llama-3-8B with Anthropic HH-RLHF dataset.
 
 **Metrics:** Toxicity (Detoxify BERT) + Helpfulness/Harmlessness (GPT-4o-mini Judge) + 3-Model Comparison Charts
 
